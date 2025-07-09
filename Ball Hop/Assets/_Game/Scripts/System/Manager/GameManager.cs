@@ -5,6 +5,8 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] PlayerBehaviour _player;
     [SerializeField] PlatformSpawner _spawner;
+    [SerializeField] private ScoreManagerGINVO _scoreManagerGINVO;
+
 
     [Header("Ads Settings :")]
     [SerializeField] int _interstitialAdInterval = 3;
@@ -14,6 +16,7 @@ public class GameManager : MonoBehaviour
     bool _isRevive = false;
 
     ScoreManager _scoreManager;
+    
 
     public static event Action OnStartGame;
     public static event Action<bool> OnEndGame;
@@ -38,7 +41,7 @@ public class GameManager : MonoBehaviour
         OnStartGame?.Invoke();
     }
 
-    public void EndGame()
+        public void EndGame()
     {
         if (_isGameOver) return;
 
@@ -52,12 +55,16 @@ public class GameManager : MonoBehaviour
         ShowInterstitial();
 
         SoundController.Instance.PlayAudio(AudioType.GAMEOVER);
+
+        int playerScore = _scoreManager.Score;                      // Ambil skor dari ScoreManager
+        _scoreManagerGINVO.SubmitPlayerScore(playerScore);         // Submit ke WebGL pakai ScoreManagerGINVO
     }
+
 
     private bool CanRevive()
     {
-        bool isRewardLoaded = Admob.Instance.IsRewardedAdLoaded;
-        return _scoreManager.Score > 2 && !_isRevive && isRewardLoaded;
+        // bool isRewardLoaded = Admob.Instance.IsRewardedAdLoaded;
+        return _scoreManager.Score > 2 && !_isRevive;
     }
 
     private void Revive()

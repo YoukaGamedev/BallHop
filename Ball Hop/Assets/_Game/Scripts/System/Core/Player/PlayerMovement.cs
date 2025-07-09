@@ -70,7 +70,7 @@ public class PlayerMovement : MonoBehaviour
         _endVal += _jumpDistance;
 
         // apply jump
-        _rb.velocity = new Vector3(_rb.velocity.x, _yVelocity, _rb.velocity.z);
+        _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, _yVelocity, _rb.linearVelocity.z);
     }
 
     internal void Revive(Vector3 position)

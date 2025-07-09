@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
 {
+    public static ScoreManagerGINVO Instance { get; private set; }
+    
     public int Score { get; private set; }
 
     public static event Action<int> OnScoreAdded;
