@@ -17,7 +17,7 @@ public class PlayerRenderer : MonoBehaviour
         _defaultMaterial = _renderer.material;
         _ballColor = Color.HSVToRGB(Random.Range(0f, 1f), .6f, .8f);
 
-        SetColor();
+        // SetColor();
     }
 
     private void SetColor()
