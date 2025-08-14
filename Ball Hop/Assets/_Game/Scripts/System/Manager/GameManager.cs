@@ -3,85 +3,83 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] PlayerBehaviour _player;
-    [SerializeField] PlatformSpawner _spawner;
-    [SerializeField] private ScoreManagerGINVO _scoreManagerGINVO;
+    [Header("References")]
+    [SerializeField] private PlayerBehaviour _player;
+    [SerializeField] private PlatformSpawner _spawner;
+    [SerializeField] private ScoreManagerGINVO _scoreManagerGINVO; // Untuk submit skor ke GINVO WebGL
+    [SerializeField] private ScoreManager _scoreManager; // Menghitung skor gameplay
 
-
-    [Header("Ads Settings :")]
-    [SerializeField] int _interstitialAdInterval = 3;
     public static int _gameplayCount;
 
-    bool _isGameOver = false;
-    bool _isRevive = false;
-
-    ScoreManager _scoreManager;
-    
+    private bool _isGameOver = false;
+    private bool _isRevive = false;
 
     public static event Action OnStartGame;
     public static event Action<bool> OnEndGame;
 
     private void Awake()
     {
-        _scoreManager = GetComponent<ScoreManager>();
-        _player.OnFirstJump += StartGame;
+        // Pastikan semua komponen terhubung
+        if (_player == null) _player = FindFirstObjectByType<PlayerBehaviour>();
+        if (_spawner == null) _spawner = FindFirstObjectByType<PlatformSpawner>();
+        if (_scoreManager == null) _scoreManager = GetComponent<ScoreManager>();
+
+        // Subscribe ke event PlayerBehaviour
+        if (_player != null)
+        {
+            _player.OnFirstJump += StartGame;
+        }
+        else
+        {
+            Debug.LogError("PlayerBehaviour belum di-assign di GameManager!");
+        }
     }
 
-    private void OnEnable()
-    {
-        Admob.OnRewardedAdWatched += Revive;
-    }
-    private void OnDisable()
-    {
-        Admob.OnRewardedAdWatched -= Revive;
-    }
-
-    void StartGame()
+    private void StartGame()
     {
         OnStartGame?.Invoke();
     }
 
-        public void EndGame()
+    public void EndGame()
     {
         if (_isGameOver) return;
 
         _isGameOver = true;
-        _player.OnGameOver();
-        _spawner.OnGameOver();
 
+        // Matikan kontrol player & spawner
+        if (_player != null) _player.OnGameOver();
+        if (_spawner != null) _spawner.OnGameOver();
+
+        // Kirim event game over
         OnEndGame?.Invoke(CanRevive());
         if (CanRevive()) _isRevive = true;
 
-        ShowInterstitial();
+        // Mainkan suara game over
+        if (SoundController.Instance != null)
+            SoundController.Instance.PlayAudio(AudioType.GAMEOVER);
 
-        SoundController.Instance.PlayAudio(AudioType.GAMEOVER);
+        // Submit skor ke leaderboard
+        int playerScore = (_scoreManager != null) ? _scoreManager.Score : 0;
 
-        int playerScore = _scoreManager.Score;                      // Ambil skor dari ScoreManager
-        _scoreManagerGINVO.SubmitPlayerScore(playerScore);         // Submit ke WebGL pakai ScoreManagerGINVO
+        if (_scoreManagerGINVO != null)
+        {
+            _scoreManagerGINVO.SubmitPlayerScore(playerScore);
+        }
+        else
+        {
+            Debug.LogWarning("ScoreManagerGINVO belum di-assign, skor tidak terkirim!");
+        }
     }
-
 
     private bool CanRevive()
     {
-        // bool isRewardLoaded = Admob.Instance.IsRewardedAdLoaded;
-        return _scoreManager.Score > 2 && !_isRevive;
+        return (_scoreManager != null && _scoreManager.Score > 2 && !_isRevive);
     }
 
     private void Revive()
     {
         _isGameOver = false;
-        _player.Revive();
-        _spawner.Revive();
-    }
-
-    private void ShowInterstitial()
-    {
-        _gameplayCount++;
-
-        // show interstitial every 3 times (default)
-        if (Mathf.Repeat(_gameplayCount, _interstitialAdInterval) == 0)
-        {
-            Admob.Instance.ShowInterstitialAd();
-        }
+        if (_player != null) _player.Revive();
+        if (_spawner != null) _spawner.Revive();
     }
 }

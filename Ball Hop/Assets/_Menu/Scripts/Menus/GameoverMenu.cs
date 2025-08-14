@@ -29,11 +29,20 @@ namespace Sans.UI.Menu
             _restartButton.interactable = true;
             _homeButton.interactable = true;
 
-            ScoreManager sc = FindObjectOfType<ScoreManager>();
-            int lastScore = sc.Score;
-            int bestScore = sc.GetBestScore();
+            ScoreManager[] scArray = FindObjectsByType<ScoreManager>(FindObjectsSortMode.None);
 
-            SetScoreDisplay(lastScore, bestScore);
+            if (scArray.Length > 0 && scArray[0] != null)
+            {
+                ScoreManager sc = scArray[0];
+                int lastScore = sc.Score;
+                int bestScore = sc.GetBestScore();
+                SetScoreDisplay(lastScore, bestScore);
+            }
+            else
+            {
+                Debug.LogWarning("⚠ ScoreManager tidak ditemukan di scene.");
+                SetScoreDisplay(0, 0); // default score jika tidak ada
+            }
         }
 
         private void Start()

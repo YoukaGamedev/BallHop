@@ -25,7 +25,6 @@ public class MenuScheduler : Singleton<MenuScheduler>
         SceneManager.sceneLoaded += HandleOnSceneLoaded;
         GameManager.OnStartGame += HandleOnStartGame;
         GameManager.OnEndGame += HandleOnEndGame;
-        Admob.OnRewardedAdWatched += HandleOnRewardedWatched;
     }
 
     private void OnDisable()
@@ -33,7 +32,6 @@ public class MenuScheduler : Singleton<MenuScheduler>
         SceneManager.sceneLoaded -= HandleOnSceneLoaded;
         GameManager.OnStartGame -= HandleOnStartGame;
         GameManager.OnEndGame -= HandleOnEndGame;
-        Admob.OnRewardedAdWatched -= HandleOnRewardedWatched;
     }
 
     private void HandleOnRewardedWatched()

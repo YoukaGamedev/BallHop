@@ -47,7 +47,6 @@ namespace Sans.UI.Menu
             _continueButton.interactable = false;
 
             //Show Rewarded Ad.
-            Admob.Instance.ShowRewardAd();
         }
 
         private void StartTimer()
